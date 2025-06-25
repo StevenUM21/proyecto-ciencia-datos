@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="main-content">
+        <div class="container">
+            <div class="search-container">
+                <h1 class="search-title">Search the Database</h1>
+
+                <form>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="searchZ" class="form-label">Z:</label>
+                            <input type="text" class="form-control" id="searchZ" placeholder="Search by Z (E.g: 1,2, ...)">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="searchA" class="form-label">A:</label>
+                            <input type="text" class="form-control" id="searchA" placeholder="Search by A (E.g: 1,2, ...)">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Energy from:</label>
+                            <input type="number" class="form-control" placeholder="">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">to:</label>
+                            <input type="number" class="form-control" placeholder="">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="multipolarity" class="form-label">XL:</label>
+                            <select class="form-select" id="multipolarity">
+                                <option selected>Select Multipolarity</option>
+                                <option value="1">Option 1</option>
+                                <option value="2">Option 2</option>
+                                <option value="3">Option 3</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="method" class="form-label">Method:</label>
+                            <select class="form-select" id="method">
+                                <option selected>Select Experimental Method</option>
+                                <option value="1">Method 1</option>
+                                <option value="2">Method 2</option>
+                                <option value="3">Method 3</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <p class="text-muted">
+                                For more detailed information, see the <a href="#" class="glossary-link">Glossary</a>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 text-end">
+                            <button type="button" class="btn btn-reset me-2">Reset</button>
+                            <button type="submit" class="btn btn-primary btn-search">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

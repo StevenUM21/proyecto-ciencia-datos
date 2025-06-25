@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block css %}
+    <link href="{% static 'css/home.css' %}" rel="stylesheet">
+{% endblock %}
+{% block content %}
+    <div class="notification-banner">
+        This is the new website for the Photon Strength Function Database. The legacy website is still available for a limited time <a href="#">here</a>.
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <div class="content-container">
+                <h1 class="main-title">Photon Strength Function Database</h1>
+
+                <section class="mb-5">
+                    <h2 class="section-title">Experimental data</h2>
+                    <div class="section-content">
+                        <p>The Photon Strength Function (PSF) Database contains all the experimental PSF data that were compiled by the IAEA Coordinated Research Project (CRP) on <a href="#">Generating a Reference Database for Photon Strength Functions</a>. The methods that have been used to extract experimental PSF data are described in the technical report that is published in <a href="#">[1]</a>, and in the recent IAEA reports <a href="#">[2]</a>, <a href="#">[3]</a>, and <a href="#">[4]</a>. The data files naming convention is self-explanatory and includes: the type and multipolarity of the PSF <strong>XL={E1|E2|M1|M1}</strong> (1 stands for E1+M1), if it is <strong>experimental</strong> or <strong>theoretical</strong> data, nuclide <strong>(Z,A)</strong>, method used: <strong>NRF, OM, ARC/DRC, PG, PP, RM, PHOTONUCLEAR</strong>, and the NSR keynumber is added for photonuclear data. For detailed definitions, please refer to our <a href="#">Glossary</a> page.</p>
+                        <p>Each data file is accompanied by a <strong>README</strong> file with the same naming convention but with the extension '.readme'. The README file contains all the information about the measurement, the experimental method, the model dependent analysis and parameters, as well as the reference.</p>
+                    </div>
+                </section>
+
+                <section class="mb-5">
+                    <h2 class="section-title">Query the database</h2>
+                    <div class="section-content">
+                        <p>You can easily search the database using any combination of the available options: <strong>Z, A, XL, Method, Energy</strong>. A plot will be produced automatically based on your query. To retrieve the entire database, simply click the search button without applying any filters.</p>
+                        <div class="text-center mt-3">
+                            <a href="{% url 'search' %}" class="btn btn-database">
+                                <i class="bi bi-search"></i>
+                                Search database
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-5">
+                    <h2 class="section-title">Download the database</h2>
+                    <div class="section-content">
+                        <p>You can download the latest version of the PSF Database in compressed format:</p>
+                        <div class="text-center mt-3">
+                            <a href="#" class="download-btn">
+                                <div>
+                                    <i class="bi bi-download"></i>
+                                    Download database
+                                </div>
+                                <div class="download-info">
+                                    Version 2024.1 - released on the 1st of November, 2024<br>
+                                    1.00 Data Files | 47,863 Data Points
+                                </div>
+                            </a>
+                        </div>
+                        <p class="mt-3">Previous releases of the database can be downloaded from the <a href="#">Versions</a> page.</p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+{% endblock %}

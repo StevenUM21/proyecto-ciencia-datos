@@ -1,71 +1,219 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
-    <div class="main-content">
-        <div class="container">
-            <div class="search-container">
-                <h1 class="search-title">Search the Database</h1>
+<div class="main-content">
+    <div class="container">
+        <div class="search-container">
+            <h1 class="search-title">Search the Database</h1>
 
-                <form>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="searchZ" class="form-label">Z:</label>
-                            <input type="text" class="form-control" id="searchZ" placeholder="Search by Z (E.g: 1,2, ...)">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="searchA" class="form-label">A:</label>
-                            <input type="text" class="form-control" id="searchA" placeholder="Search by A (E.g: 1,2, ...)">
-                        </div>
-                    </div>
+            <form>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <input type="hidden" id="csv-url" value="{% static 'data/PSFDatabase-v2024.1.csv' %}">
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Energy from:</label>
-                            <input type="number" class="form-control" placeholder="">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">to:</label>
-                            <input type="number" class="form-control" placeholder="">
-                        </div>
-                    </div>
+                        <label for="searchZ" class="form-label">Z:</label>
+                        <select id="searchZ" class="form-select select2"></select>
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="multipolarity" class="form-label">XL:</label>
-                            <select class="form-select" id="multipolarity">
-                                <option selected>Select Multipolarity</option>
-                                <option value="1">Option 1</option>
-                                <option value="2">Option 2</option>
-                                <option value="3">Option 3</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="method" class="form-label">Method:</label>
-                            <select class="form-select" id="method">
-                                <option selected>Select Experimental Method</option>
-                                <option value="1">Method 1</option>
-                                <option value="2">Method 2</option>
-                                <option value="3">Method 3</option>
-                            </select>
-                        </div>
                     </div>
+                    <div class="col-md-6">
+                        <label for="searchA" class="form-label">A:</label>
+                        <select id="searchA" class="form-select select2"></select>
 
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <p class="text-muted">
-                                For more detailed information, see the <a href="#" class="glossary-link">Glossary</a>.
-                            </p>
-                        </div>
                     </div>
+                </div>
 
-                    <div class="row">
-                        <div class="col-12 text-end">
-                            <button type="button" class="btn btn-reset me-2">Reset</button>
-                            <button type="submit" class="btn btn-primary btn-search">Search</button>
-                        </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Energy from:</label>
+                        <input type="number" class="form-control" placeholder="">
                     </div>
-                </form>
-            </div>
+                    <div class="col-md-6">
+                        <label class="form-label">to:</label>
+                        <input type="number" class="form-control" placeholder="">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="multipolarity" class="form-label">XL:</label>
+                        <select id="multipolarity" class="form-select select2"></select>
+
+                    </div>
+                    <div class="col-md-6">
+                        <label for="method" class="form-label">Method:</label>
+                        <select id="method" class="form-select select2"></select>
+
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <p class="text-muted">
+                            For more detailed information, see the <a href="#" class="glossary-link">Glossary</a>.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 text-end">
+                        <button type="button" class="btn btn-reset me-2">Reset</button>
+                        <button type="submit" class="btn btn-primary btn-search" id="plotBtn">Search</button>
+                    </div>
+                </div>
+            </form>
         </div>
+         <div id="grafico" style="width:100%;max-width:1000px;height:600px;"></div>
+
     </div>
+</div>
+  <script>
+      const csvUrl = $('#csv-url').val();
+        let dataRows = [];
+
+  fetch(csvUrl)
+    .then(response => response.text())
+    .then(textData => {
+        const text = textData;
+        const lines = text.split("\n");
+        const headers = lines[0].split(",");
+
+        const idx = {
+          Z: headers.indexOf("Z"),
+          A: headers.indexOf("A"),
+          Method: headers.indexOf("Method"),
+          E: headers.indexOf("E [MeV]"),
+          f1: headers.indexOf("f1 [MeV^-3]"),
+          df1: headers.indexOf("df1 [MeV^-3]")
+        };
+
+        const dataMap = {}; // agrupar por Z-A-Method
+
+        for (let i = 1; i < lines.length; i++) {
+          const row = lines[i].split(",");
+          if (row.length < headers.length) continue;
+
+          const key = `${row[idx.Z]}-${row[idx.A]} (${row[idx.Method]})`;
+          const E = parseFloat(row[idx.E]);
+          const f1 = parseFloat(row[idx.f1]);
+          const df1 = parseFloat(row[idx.df1]);
+
+          if (isNaN(E) || isNaN(f1)) continue;
+
+          if (!dataMap[key]) {
+            dataMap[key] = { x: [], y: [], error_y: [] };
+          }
+
+          dataMap[key].x.push(E);
+          dataMap[key].y.push(f1);
+          dataMap[key].error_y.push(isNaN(df1) ? 0 : df1);
+        }
+
+        const traces = Object.entries(dataMap).map(([label, values]) => ({
+          x: values.x,
+          y: values.y,
+          error_y: {
+            type: "data",
+            array: values.error_y,
+            visible: true
+          },
+          mode: "markers",
+          type: "scatter",
+          name: label
+        }));
+
+        const layout = {
+          title: "Photon Strength Function (Todos los datos)",
+          xaxis: { title: "Energía (MeV)" },
+          yaxis: { title: "f1 (MeV⁻³)" },
+          showlegend: true
+        };
+
+        Plotly.newPlot("grafico", traces, layout, {responsive: true});
+
+    });
+  </script>
+<!-- <script>
+$(document).ready(function () {
+//   $('.select2').select2({ placeholder: 'Selecciona...', allowClear: true });
+
+  const csvUrl = $('#csv-url').val();
+  let dataRows = [];
+
+  fetch(csvUrl)
+    .then(response => response.text())
+    .then(text => {
+      const lines = text.split("\n").filter(l => l.trim().length > 0);
+      const headers = lines[0].split(",");
+      const idx = {};
+      headers.forEach((h, i) => idx[h] = i);
+
+      // Parsear datos
+      for (let i = 1; i < lines.length; i++) {
+        const row = lines[i].split(",");
+        if (row.length !== headers.length) continue;
+        dataRows.push({
+          Z: row[idx["Z"]],
+          A: row[idx["A"]],
+          XL: row[idx["XL"]],
+          Method: row[idx["Method"]],
+          E: parseFloat(row[idx["E [MeV]"]]),
+          f1: parseFloat(row[idx["f1 [MeV^-3]"]]),
+          df1: parseFloat(row[idx["df1 [MeV^-3]"]])
+        });
+      }
+
+      // Llenar filtros únicos
+      function fillSelect(id, field) {
+        const unique = [...new Set(dataRows.map(d => d[field]))].filter(v => v);
+        unique.sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
+        unique.forEach(val => {
+          $(`#${id}`).append(`<option value="${val}">${val}</option>`);
+        });
+      }
+
+      fillSelect("searchZ", "Z");
+      fillSelect("searchA", "A");
+      fillSelect("multipolarity", "XL");
+      fillSelect("method", "Method");
+    });
+
+  $('#plotBtn').click(() => {
+    const Z = $('#searchZ').val();
+    const A = $('#searchA').val();
+    const XL = $('#multipolarity').val();
+    const Method = $('#method').val();
+
+    const filtered = dataRows.filter(d =>
+      d.Z === Z && d.A === A && d.XL === XL && d.Method === Method &&
+      !isNaN(d.E) && !isNaN(d.f1)
+    );
+
+    if (filtered.length === 0) {
+      alert("No se encontraron datos para esta combinación.");
+      return;
+    }
+
+    const trace = {
+      x: filtered.map(d => d.E),
+      y: filtered.map(d => d.f1),
+      error_y: {
+        type: "data",
+        array: filtered.map(d => d.df1),
+        visible: true
+      },
+      mode: "lines+markers",
+      type: "scatter",
+      name: `Z=${Z}, A=${A}, XL=${XL}, Method=${Method}`
+    };
+
+    const layout = {
+      title: "Función de fuerza f1 vs Energía",
+      xaxis: { title: "Energía [MeV]" },
+      yaxis: { title: "f1 [MeV^-3]" }
+    };
+
+    Plotly.newPlot("plot", [trace], layout);
+  });
+});
+</script> -->
 {% endblock %}
